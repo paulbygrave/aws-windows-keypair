@@ -10,7 +10,7 @@ parser.add_argument('-r', '--role-arn', required=False, help='The Role ARN to be
 parser.add_argument('region', help='The AWS region to create the resources in.')
 parser.add_argument('keypair', help='The name of the Key Pair you wish to create.')
 
-# Load arguments
+# Load the argument values
 args = parser.parse_args()
 
 # Set variable values to the argument values
@@ -25,7 +25,7 @@ session_name="keypair-session"
 def get_role():
     client = boto3.client('sts')
     user_arn = client.get_caller_identity()["Arn"]
-    print(f'The current identity is "{user_arn}"".')  
+    print(f'The current identity is "{user_arn}".')  
 
 # Function to assume the role
 def assume_role(arn, session_name):
@@ -70,15 +70,15 @@ def create_secret(key_content):
     return secret_arn
 
 # The main script which utilises the functions above
-# Invoke assume role function if argument was passed to do so
-print
-get_role()
-if role_arn:
-    assume_role(role_arn, session_name)
-else:
-    print('No role provided, commencing keypair activities... ')
 # Set a loop
 while True:
+    # Print the current identity
+    get_role()
+    # Invoke assume role function if argument was passed to do so
+    if role_arn:
+        assume_role(role_arn, session_name)
+    else:
+        print('No alternate role provided, commencing keypair activities... ')
     # Check for an existing keypair using the value specified, exit with no further action if Key Pair exists
     try:
         check_keypair(keypair_name)
@@ -110,4 +110,3 @@ while True:
         else:
             print(e.response['Error']['Code'])
             sys.exit(2)
-
